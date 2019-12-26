@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset=utf-8>
+  <title>사다리 타기</title>
+  <link rel="stylesheet" type="text/css" href="style.css">
+  <link rel="stylesheet" type="text/css" href=" meterial.css">
+  <script src="./jquery-2.1.3.min.js"></script>
+  <script src="./ie_polyfill.js"></script>
+</head>
+
+<body class="animation">
+  <div class="landing" id="landing">
+    <div class="start-form">
+      <h1>오픈소스SW그룹배<br>사다리 타기!</h1>
+      <div class="landing-form">
+        <div class="group">
+          <div class="fill-area">
+            <input type="text" name="member" required>
+            <span class="highlight"></span>
+            <span class="bar"></span>
+            <label>참여자 수</label>
+          </div>
+          <div id="button" class="button raised cyan">
+            <div class="center" fit>START</div>
+            <paper-ripple fit></paper-ripple>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div id="ladder" class="ladder">
+    <div class="dim"></div>
+    <canvas class="ladder_canvas" id="ladder_canvas"></canvas>
+  </div>
+  <!-- <script src="./ladderData.js"></script> -->
+  <script src="./ladder.js"></script>
+</body>
+
+</html>

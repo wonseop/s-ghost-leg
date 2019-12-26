@@ -1,0 +1,17 @@
+{
+  "name": "s-ghost-leg",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.html",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "sadari",
+    "ladder",
+    "ghost",
+    "leg"
+  ],
+  "author": "Wonseop Kim",
+  "license": "MIT"
+}

@@ -1,0 +1,234 @@
+@import url(https://fonts.googleapis.com/css?family=Gugi);
+
+body {
+  padding: 0 30px;
+}
+
+p, table, th, td {
+    margin: 0;
+    padding: 0;
+    border: 0;
+}
+
+table {
+    border-collapse: collapse;
+    border-spacing: 0;
+}
+
+input[data-node] {
+  padding: 0;
+}
+
+.landing{
+  width: 100%;
+  height: 100%;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 999;
+  -webkit-transition: opacity .3s ease-in-out;
+  -moz-transition: opacity .3s ease-in-out;
+  -o-transition: opacity .3s ease-in-out;
+  transition: opacity .3s ease-in-out;
+}
+
+.ladder_canvas{
+    z-index: 999;
+}
+.ladder{
+    width: 100%;
+    position: relative;
+    margin: 100px auto;
+    z-index: 0;
+}
+.node{
+    width: 0px;
+    height: 0px;
+    background-color: #000;
+}
+.ladder table{
+    position: absolute;
+    top:2px;
+    left: 1px;
+    z-index: -99;
+}
+.user-wrap{
+    width: 60px;
+    position: absolute;
+    top : -52px;
+    text-align: center;
+}
+.user-wrap input{
+    width:100%;
+    height: 20px;
+    text-align: center;
+    border: 0 solid #ddd;
+    font-size: 1.5rem;
+}
+.user-wrap button{
+    margin: 5px 0 0 0;
+    border:0;
+    width: 20px;
+    height: 20px;
+    border-radius: 10px;
+    text-align: center;
+    line-height: 20px;
+    font-weight: bolder;
+    color: #fff;
+    cursor: pointer;
+    outline: 0;
+}
+.answer-wrap{
+  width: 60px;
+  position: absolute;
+  text-align: center;
+}
+.answer-wrap div[data-node]{
+  margin-left: 20px;
+  width: 1.6rem;
+  height: 5.6rem;
+  text-align: center;
+  border-radius: 3px;
+  border: 1px solid #ddd;
+  font-size: 1.5rem;
+}
+.answer-wrap p{
+    width: 100%;
+    height: 20px;
+    font-weight: bold;
+    font-size: 0.8em;
+    line-height: 20px;
+}
+
+.start-form{
+    height: 400px;
+    margin: 0 auto;
+    text-align: center;
+    position: relative;
+    padding: 5em 0.5em;
+}
+.landing-form{
+  width: 320px;
+  margin: auto;
+}
+.landing-form input{
+    text-align: center;
+    border-bottom: 1px solid #ddd;
+}
+.landing-form label{
+    display: block;
+    width: 100%;
+}
+.landing-form .button{
+    margin-top: 10px;
+    width: 220px;
+}
+.dim{
+    width: 100%;
+    height: 100%;
+    /*background-color: #fff;*/
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+input[name=member] {
+  font-size: 2vw;
+}
+
+
+
+h1 {
+  text-align: center;
+  font-weight: normal;
+  color: #01a4dc;
+  text-transform: uppercase;
+  font-size: 8em;
+  white-space: nowrap;
+  font-size: 9vw;
+  z-index: 1000;
+  font-family: 'Gugi', cursive;
+  /* text-shadow: 5px 5px 0 rgba(0, 0, 0, 0.7); */
+  -moz-transform: skew(0, -5.7deg);
+  -ms-transform: skew(0, -5.7deg);
+  -webkit-transform: skew(0, -5.7deg);
+  transform: skew(0, -5.7deg);
+  -moz-transition-property: font-size;
+  -o-transition-property: font-size;
+  -webkit-transition-property: font-size;
+  transition-property: font-size;
+  -moz-transition-duration: 0.5s;
+  -o-transition-duration: 0.5s;
+  -webkit-transition-duration: 0.5s;
+  transition-duration: 0.5s;
+}
+
+@media screen and (max-width: 50em) {
+  h1 {
+    font-size: 8vw;
+  }
+}
+
+
+          /* Cool infinite background scrolling animation.
+ * Twitter: @kootoopas
+ */
+/* Background data (Original source: https://subtlepatterns.com/grid-me/) */
+/* Animations */
+@-webkit-keyframes bg-scrolling-reverse {
+  100% {
+    background-position: 50px 50px;
+  }
+}
+@-moz-keyframes bg-scrolling-reverse {
+  100% {
+    background-position: 50px 50px;
+  }
+}
+@-o-keyframes bg-scrolling-reverse {
+  100% {
+    background-position: 50px 50px;
+  }
+}
+@keyframes bg-scrolling-reverse {
+  100% {
+    background-position: 50px 50px;
+  }
+}
+@-webkit-keyframes bg-scrolling {
+  0% {
+    background-position: 50px 50px;
+  }
+}
+@-moz-keyframes bg-scrolling {
+  0% {
+    background-position: 50px 50px;
+  }
+}
+@-o-keyframes bg-scrolling {
+  0% {
+    background-position: 50px 50px;
+  }
+}
+@keyframes bg-scrolling {
+  0% {
+    background-position: 50px 50px;
+  }
+}
+/* Main styles */
+body.animation {
+  /* img size is 50x50 */
+  background: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAIAAACRXR/mAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAIGNIUk0AAHolAACAgwAA+f8AAIDpAAB1MAAA6mAAADqYAAAXb5JfxUYAAABnSURBVHja7M5RDYAwDEXRDgmvEocnlrQS2SwUFST9uEfBGWs9c97nbGtDcquqiKhOImLs/UpuzVzWEi1atGjRokWLFi1atGjRokWLFi1atGjRokWLFi1af7Ukz8xWp8z8AAAA//8DAJ4LoEAAlL1nAAAAAElFTkSuQmCC") repeat 0 0;
+  -webkit-animation: bg-scrolling-reverse .92s infinite;
+  /* Safari 4+ */
+  -moz-animation: bg-scrolling-reverse .92s infinite;
+  /* Fx 5+ */
+  -o-animation: bg-scrolling-reverse .92s infinite;
+  /* Opera 12+ */
+  animation: bg-scrolling-reverse .92s infinite;
+  /* IE 10+ */
+  -webkit-animation-timing-function: linear;
+  -moz-animation-timing-function: linear;
+  -o-animation-timing-function: linear;
+  animation-timing-function: linear;
+}
+
