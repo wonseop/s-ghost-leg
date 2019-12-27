@@ -15,6 +15,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
   var DEFAULT_LINE_WIDTH = '2';
   var DEFAULT_LINE_COLOR = '#999';
+  var ANIMATION_TERM= 100;
 
   var _ctx;
 
@@ -33,10 +34,10 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   if (window._ladderData) {
-    document.getElementsByClassName('fill-area')[ 0 ].style.display = "none";
+    document.getElementsByClassName('fill-area')[0].style.display = "none";
   }
 
-  document.getElementById("button").addEventListener('click', function() {
+  document.getElementById("button").addEventListener('click', function () {
     var member;
 
     if (window._ladderData) {
@@ -45,11 +46,11 @@ document.addEventListener("DOMContentLoaded", function () {
       member = document.querySelector('input[name=member]').value;
 
       if (member < 2) {
-        return alert('최소 2명 이상 선택하세요.')
+        return alert('최소 2명 이상 선택하세요.');
       }
 
       if (member > 25) {
-        return alert('너무 많아요.. ㅠㅠ')
+        return alert('너무 많아요.. ㅠㅠ');
       }
     }
 
@@ -135,7 +136,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
       return false;
     }
-    if (nodeInfo["change"]) {
+    if (nodeInfo.change) {
       var leftNode = (x - 1) + "-" + y;
       var rightNode = (x + 1) + "-" + y;
       downNode = x + "-" + (y + 1);
@@ -143,44 +144,44 @@ document.addEventListener("DOMContentLoaded", function () {
       var rightNodeInfo = GLOBAL_FOOT_PRINT[rightNode];
 
       if (GLOBAL_FOOT_PRINT.hasOwnProperty(leftNode) && GLOBAL_FOOT_PRINT.hasOwnProperty(rightNode)) {
-        if ((leftNodeInfo["change"] && leftNodeInfo["draw"] && !GLOBAL_CHECK_FOOT_PRINT[leftNode]) && (rightNodeInfo["change"]) && !GLOBAL_CHECK_FOOT_PRINT[rightNode]) {
+        if ((leftNodeInfo.change && leftNodeInfo.draw && !GLOBAL_CHECK_FOOT_PRINT[leftNode]) && rightNodeInfo.change && !GLOBAL_CHECK_FOOT_PRINT[rightNode]) {
           //Left우선
           console.log("중복일때  LEFT 우선");
           stokeLine(x, y, 'w', 'l', color, FINDING_NODE_WIDTH);
           setTimeout(function () {
-            return startLineDrawing(leftNode, color)
-          }, 100);
+            return startLineDrawing(leftNode, color);
+          }, ANIMATION_TERM);
         }
         else if ((leftNodeInfo["change"] && !leftNodeInfo["draw"] && !GLOBAL_CHECK_FOOT_PRINT[leftNode]) && (rightNodeInfo["change"]) && !GLOBAL_CHECK_FOOT_PRINT[rightNode]) {
           console.log('RIGHT 우선')
           stokeLine(x, y, 'w', 'r', color, FINDING_NODE_WIDTH);
           console.log("right")
           setTimeout(function () {
-            return startLineDrawing(rightNode, color)
-          }, 100);
+            return startLineDrawing(rightNode, color);
+          }, ANIMATION_TERM);
         }
         else if ((leftNodeInfo["change"] && leftNodeInfo["draw"] && !GLOBAL_CHECK_FOOT_PRINT[leftNode]) && !rightNodeInfo["change"]) {
           //Left우선
           console.log("LEFT 우선");
           stokeLine(x, y, 'w', 'l', color, FINDING_NODE_WIDTH);
           setTimeout(function () {
-            return startLineDrawing(leftNode, color)
-          }, 100);
+            return startLineDrawing(leftNode, color);
+          }, ANIMATION_TERM);
         }
         else if (!leftNodeInfo["change"] && (rightNodeInfo["change"]) && !GLOBAL_CHECK_FOOT_PRINT[rightNode]) {
           //Right우선
           console.log("RIGHT 우선");
           stokeLine(x, y, 'w', 'r', color, FINDING_NODE_WIDTH);
           setTimeout(function () {
-            return startLineDrawing(rightNode, color)
-          }, 100);
+            return startLineDrawing(rightNode, color);
+          }, ANIMATION_TERM);
         }
         else {
           console.log('DOWN 우선')
           stokeLine(x, y, 'h', 'd', color, FINDING_NODE_WIDTH);
           setTimeout(function () {
-            return startLineDrawing(downNode, color)
-          }, 100);
+            return startLineDrawing(downNode, color);
+          }, ANIMATION_TERM);
         }
       } else {
         console.log('else')
@@ -192,14 +193,14 @@ document.addEventListener("DOMContentLoaded", function () {
             console.log("RIGHT 우선");
             stokeLine(x, y, 'w', 'r', color, FINDING_NODE_WIDTH);
             setTimeout(function () {
-              return startLineDrawing(rightNode, color)
-            }, 100);
+              return startLineDrawing(rightNode, color);
+            }, ANIMATION_TERM);
           } else {
             console.log('DOWN')
             stokeLine(x, y, 'h', 'd', color, FINDING_NODE_WIDTH);
             setTimeout(function () {
-              return startLineDrawing(downNode, color)
-            }, 100);
+              return startLineDrawing(downNode, color);
+            }, ANIMATION_TERM);
           }
 
         } else if (GLOBAL_FOOT_PRINT.hasOwnProperty(leftNode) && !GLOBAL_FOOT_PRINT.hasOwnProperty(rightNode)) {
@@ -210,14 +211,14 @@ document.addEventListener("DOMContentLoaded", function () {
             console.log("LEFT 우선");
             stokeLine(x, y, 'w', 'l', color, FINDING_NODE_WIDTH);
             setTimeout(function () {
-              return startLineDrawing(leftNode, color)
+              return startLineDrawing(leftNode, color);
             }, 100);
           } else {
             console.log('DOWN')
             stokeLine(x, y, 'h', 'd', color, FINDING_NODE_WIDTH);
             setTimeout(function () {
-              return startLineDrawing(downNode, color)
-            }, 100);
+              return startLineDrawing(downNode, color);
+            }, ANIMATION_TERM);
           }
         }
       }
@@ -226,8 +227,8 @@ document.addEventListener("DOMContentLoaded", function () {
       downNode = x + "-" + (y + 1);
       stokeLine(x, y, 'h', 'd', color, FINDING_NODE_WIDTH);
       setTimeout(function () {
-        return startLineDrawing(downNode, color)
-      }, 100);
+        return startLineDrawing(downNode, color);
+      }, ANIMATION_TERM);
     }
   }
 
@@ -312,7 +313,7 @@ document.addEventListener("DOMContentLoaded", function () {
     var eachWidth = HORIZONTAL_NODE_WIDTH;
     var eachHeight = 25;
 
-    if ( !_ctx ) {
+    if (!_ctx) {
       _ctx = ladder_canvas.getContext('2d');
     }
 
@@ -355,15 +356,15 @@ document.addEventListener("DOMContentLoaded", function () {
         var loopNode = x + "-" + y;
         var rand = Math.floor(Math.random() * 2);
         if (rand == 0) {
-          GLOBAL_FOOT_PRINT[loopNode] = { "change": false, "draw": false }
+          GLOBAL_FOOT_PRINT[loopNode] = { "change": false, "draw": false };
         } else {
           if (x == (horizontalNode - 1)) {
             GLOBAL_FOOT_PRINT[loopNode] = { "change": false, "draw": false };
           } else {
-            GLOBAL_FOOT_PRINT[loopNode] = { "change": true, "draw": true };;
+            GLOBAL_FOOT_PRINT[loopNode] = { "change": true, "draw": true };
             x = x + 1;
             loopNode = x + "-" + y;
-            GLOBAL_FOOT_PRINT[loopNode] = { "change": true, "draw": false };;
+            GLOBAL_FOOT_PRINT[loopNode] = { "change": true, "draw": false };
           }
         }
       }
@@ -371,41 +372,34 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   function setDefaultFootPrint() {
-    for (var r = 0; r < verticalNode; r++) {
-      for (var column = 0; column < horizontalNode; column++) {
+    var r, column;
+
+    for (r = 0; r < verticalNode; r++) {
+      for (column = 0; column < horizontalNode; column++) {
         GLOBAL_FOOT_PRINT[column + "-" + r] = false;
       }
     }
   }
 
   function reSetCheckFootPrint() {
-    for (var r = 0; r < verticalNode; r++) {
-      for (var column = 0; column < horizontalNode; column++) {
+    var r, column;
+
+    for (r = 0; r < verticalNode; r++) {
+      for (column = 0; column < horizontalNode; column++) {
         GLOBAL_CHECK_FOOT_PRINT[column + "-" + r] = false;
       }
     }
   }
 
   function setDefaultRowLine() {
-    for (var y = 0; y < verticalNode; y++) {
-      var rowArr = [];
-      for (var x = 0; x < horizontalNode; x++) {
-        var node = x + "-" + row;
+    var x, y, rowArr, node;
+
+    for (y = 0; y < verticalNode; y++) {
+      rowArr = [];
+
+      for (x = 0; x < horizontalNode; x++) {
+        node = x + "-" + row;
         rowArr.push(node);
-        // 노드그리기
-        var left = x * HORIZONTAL_NODE_WIDTH;
-        var top = row * 25;
-        node = $('<div></div>')
-          .attr('class', 'node')
-          .attr('id', node)
-          .attr('data-left', left)
-          .attr('data-top', top)
-          .css({
-            'position': 'absolute',
-            'left': left + "px",
-            'top': top + "px"
-          });
-        $(ladder).append(node);
       }
       LADDER[row] = rowArr;
       row++;
