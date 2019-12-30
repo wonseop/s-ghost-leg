@@ -16,7 +16,7 @@
         }
     }
 
-    window._ladderData = {};
-    window._ladderData.members = memberList.split( " " );
-    window._ladderData.goals = goals;
+    window.ladderData = {};
+    window.ladderData.members = memberList.split( " " );
+    window.ladderData.goals = goals;
 })();

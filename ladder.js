@@ -1,76 +1,336 @@
-document.addEventListener("DOMContentLoaded", function () {
-  var verticalNode = 20;
-  var horizontalNode = 0;
-  var HORIZONTAL_NODE_WIDTH = 55;
-  var DEFAULT_GOAL_VALUE = "";
-  var FINDING_NODE_WIDTH = 5;
+(() => {
+  const Console = window.console || {};
 
-  var LADDER = {};
-  var row = 0;
-  var ladder = document.getElementById('ladder');
-  var ladder_canvas = document.getElementById('ladder_canvas');
-  var GLOBAL_FOOT_PRINT = {};
-  var GLOBAL_CHECK_FOOT_PRINT = {};
-  var working = false;
+  const HORIZONTAL_NODE_WIDTH = 55;
+  const VERTICAL_NODE_HEIGHT = 25;
+  const FINDING_ROOT_BORDER_WIDTH = 5;
+  const LADDER_ROWS = {};
+  const GLOBAL_FOOT_PRINT = {};
+  const GLOBAL_CHECK_FOOT_PRINT = {};
+  const DEFAULT_GOAL_VALUE = '';
+  const DEFAULT_VERTICAL_NODES = 20;
+  const DEFAULT_LINE_WIDTH = '2';
+  const DEFAULT_LINE_COLOR = '#999';
+  const ANIMATION_TERM = 100;
 
-  var DEFAULT_LINE_WIDTH = '2';
-  var DEFAULT_LINE_COLOR = '#999';
-  var ANIMATION_TERM= 100;
+  const ladder = document.getElementById('ladder');
+  const ladderCanvas = document.getElementById('ladder-canvas');
 
-  var _ctx;
+  let horizontalNode = 0;
+  let row = 0;
+  let working = false;
+  let ctx;
+  let userName = '';
 
-  function shuffle(array) {
-    var currentIndex = array.length, temporaryValue, randomIndex;
+  function hasOwnProperty(obj, property) {
+    return Object.prototype.hasOwnProperty.call(obj, property);
+  }
 
-    while (0 !== currentIndex) {
+  function shuffle(arr) {
+    const newArr = arr;
+    let currentIndex = newArr.length;
+    let temporaryValue;
+    let randomIndex;
+
+    while (currentIndex !== 0) {
       randomIndex = Math.floor(Math.random() * currentIndex);
       currentIndex -= 1;
 
-      temporaryValue = array[currentIndex];
-      array[currentIndex] = array[randomIndex];
-      array[randomIndex] = temporaryValue;
+      temporaryValue = newArr[currentIndex];
+      newArr[currentIndex] = newArr[randomIndex];
+      newArr[randomIndex] = temporaryValue;
     }
-    return array;
+
+    return newArr;
   }
 
-  if (window._ladderData) {
-    document.getElementsByClassName('fill-area')[0].style.display = "none";
-  }
+  function stokeLine(x, y, flag, dir, color, width) {
+    let moveToStart = 0;
+    let moveToEnd = 0;
+    let lineToStart = 0;
+    let lineToEnd = 0;
 
-  document.getElementById("button").addEventListener('click', function () {
-    var member;
+    const eachWidth = HORIZONTAL_NODE_WIDTH;
+    const eachHeight = VERTICAL_NODE_HEIGHT;
 
-    if (window._ladderData) {
-      member = window._ladderData.members.length;
+    if (!ctx) {
+      ctx = ladderCanvas.getContext('2d');
+    }
+
+    if (flag === 'w') {
+      // 가로줄
+      if (dir === 'r') {
+        ctx.beginPath();
+        moveToStart = x * eachWidth;
+        moveToEnd = y * eachHeight;
+        lineToStart = (x + 1) * eachWidth;
+        lineToEnd = y * eachHeight;
+      } else {
+        // dir "l"
+        ctx.beginPath();
+        moveToStart = x * eachWidth;
+        moveToEnd = y * eachHeight;
+        lineToStart = (x - 1) * eachWidth;
+        lineToEnd = y * eachHeight;
+      }
     } else {
-      member = document.querySelector('input[name=member]').value;
-
-      if (member < 2) {
-        return alert('최소 2명 이상 선택하세요.');
-      }
-
-      if (member > 25) {
-        return alert('너무 많아요.. ㅠㅠ');
-      }
+      ctx.beginPath();
+      moveToStart = x * eachWidth;
+      moveToEnd = y * eachHeight;
+      lineToStart = x * eachWidth;
+      lineToEnd = (y + 1) * eachHeight;
     }
 
-    document.getElementById('landing').style.opacity = '0';
+    ctx.moveTo(moveToStart + 3, moveToEnd + 2);
+    ctx.lineTo(lineToStart + 3, lineToEnd + 2);
+    ctx.strokeStyle = color;
+    ctx.lineWidth = width;
+    ctx.stroke();
+    ctx.closePath();
+  }
+
+  function setDefaultFootPrint() {
+    for (let r = 0; r < DEFAULT_VERTICAL_NODES; r += 1) {
+      for (let column = 0; column < horizontalNode; column += 1) {
+        GLOBAL_FOOT_PRINT[`${column}-${r}`] = false;
+      }
+    }
+  }
+
+  function reSetCheckFootPrint() {
+    for (let r = 0; r < DEFAULT_VERTICAL_NODES; r += 1) {
+      for (let column = 0; column < horizontalNode; column += 1) {
+        GLOBAL_CHECK_FOOT_PRINT[`${column}-${r}`] = false;
+      }
+    }
+  }
+
+  function setDefaultRowLine() {
+    let x; let y; let rowArr; let
+      node;
+
+    for (y = 0; y < DEFAULT_VERTICAL_NODES; y += 1) {
+      rowArr = [];
+
+      for (x = 0; x < horizontalNode; x += 1) {
+        node = `${x}-${row}`;
+        rowArr.push(node);
+      }
+      LADDER_ROWS[row] = rowArr;
+      row += 1;
+    }
+  }
+
+  function startLineDrawing(node, color) {
+    let downNode;
+    const x = node.split('-')[0] * 1;
+    const y = node.split('-')[1] * 1;
+    const nodeInfo = GLOBAL_FOOT_PRINT[node];
+
+    GLOBAL_CHECK_FOOT_PRINT[node] = true;
+
+    if (y === DEFAULT_VERTICAL_NODES) {
+      reSetCheckFootPrint();
+
+      const target = document.querySelector(`div[data-node="${node}"]`);
+      target.style.borderColor = color;
+      target.style.borderColor = color;
+      target.style.borderWidth = `${FINDING_ROOT_BORDER_WIDTH}px`;
+      document.getElementById(`${node}-user`).innerText = userName;
+      working = false;
+
+      return false;
+    }
+
+    if (nodeInfo.change) {
+      const leftNode = `${x - 1}-${y}`;
+      const rightNode = `${x + 1}-${y}`;
+      downNode = `${x}-${y + 1}`;
+      const leftNodeInfo = GLOBAL_FOOT_PRINT[leftNode];
+      const rightNodeInfo = GLOBAL_FOOT_PRINT[rightNode];
+
+      if (hasOwnProperty(GLOBAL_FOOT_PRINT, leftNode)
+        && hasOwnProperty(GLOBAL_FOOT_PRINT, rightNode)) {
+        if ((leftNodeInfo.change && leftNodeInfo.draw && !GLOBAL_CHECK_FOOT_PRINT[leftNode])
+          && rightNodeInfo.change && !GLOBAL_CHECK_FOOT_PRINT[rightNode]) {
+          // Left우선
+          Console.log('중복일때  LEFT 우선');
+          stokeLine(x, y, 'w', 'l', color, FINDING_ROOT_BORDER_WIDTH);
+          setTimeout(() => startLineDrawing(leftNode, color), ANIMATION_TERM);
+        } else if ((leftNodeInfo.change && !leftNodeInfo.draw && !GLOBAL_CHECK_FOOT_PRINT[leftNode])
+          && (rightNodeInfo.change) && !GLOBAL_CHECK_FOOT_PRINT[rightNode]) {
+          Console.log('RIGHT 우선');
+          stokeLine(x, y, 'w', 'r', color, FINDING_ROOT_BORDER_WIDTH);
+          Console.log('right');
+          setTimeout(() => startLineDrawing(rightNode, color), ANIMATION_TERM);
+        } else if ((leftNodeInfo.change && leftNodeInfo.draw && !GLOBAL_CHECK_FOOT_PRINT[leftNode])
+          && !rightNodeInfo.change) {
+          // Left우선
+          Console.log('LEFT 우선');
+          stokeLine(x, y, 'w', 'l', color, FINDING_ROOT_BORDER_WIDTH);
+          setTimeout(() => startLineDrawing(leftNode, color), ANIMATION_TERM);
+        } else if (!leftNodeInfo.change
+          && (rightNodeInfo.change) && !GLOBAL_CHECK_FOOT_PRINT[rightNode]) {
+          // Right우선
+          Console.log('RIGHT 우선');
+          stokeLine(x, y, 'w', 'r', color, FINDING_ROOT_BORDER_WIDTH);
+          setTimeout(() => startLineDrawing(rightNode, color), ANIMATION_TERM);
+        } else {
+          Console.log('DOWN 우선');
+          stokeLine(x, y, 'h', 'd', color, FINDING_ROOT_BORDER_WIDTH);
+          setTimeout(() => startLineDrawing(downNode, color), ANIMATION_TERM);
+        }
+      } else {
+        Console.log('else');
+        if (!hasOwnProperty(GLOBAL_FOOT_PRINT, leftNode)
+          && hasOwnProperty(GLOBAL_FOOT_PRINT, rightNode)) {
+          // / 좌측라인
+          Console.log('좌측라인');
+          if ((rightNodeInfo.change && !rightNodeInfo.draw)
+            && !GLOBAL_CHECK_FOOT_PRINT[rightNode]) {
+            // Right우선
+            Console.log('RIGHT 우선');
+            stokeLine(x, y, 'w', 'r', color, FINDING_ROOT_BORDER_WIDTH);
+            setTimeout(() => startLineDrawing(rightNode, color), ANIMATION_TERM);
+          } else {
+            Console.log('DOWN');
+            stokeLine(x, y, 'h', 'd', color, FINDING_ROOT_BORDER_WIDTH);
+            setTimeout(() => startLineDrawing(downNode, color), ANIMATION_TERM);
+          }
+        } else if (hasOwnProperty(GLOBAL_FOOT_PRINT, leftNode)
+          && !hasOwnProperty(GLOBAL_FOOT_PRINT, rightNode)) {
+          // / 우측라인
+          Console.log('우측라인');
+          if ((leftNodeInfo.change && leftNodeInfo.draw) && !GLOBAL_CHECK_FOOT_PRINT[leftNode]) {
+            // Right우선
+            Console.log('LEFT 우선');
+            stokeLine(x, y, 'w', 'l', color, FINDING_ROOT_BORDER_WIDTH);
+            setTimeout(() => startLineDrawing(leftNode, color), 100);
+          } else {
+            Console.log('DOWN');
+            stokeLine(x, y, 'h', 'd', color, FINDING_ROOT_BORDER_WIDTH);
+            setTimeout(() => startLineDrawing(downNode, color), ANIMATION_TERM);
+          }
+        }
+      }
+    } else {
+      Console.log('down');
+      downNode = `${x}-${y + 1}`;
+      downNode = `${x}-${y + 1}`;
+      stokeLine(x, y, 'h', 'd', color, FINDING_ROOT_BORDER_WIDTH);
+      setTimeout(() => startLineDrawing(downNode, color), ANIMATION_TERM);
+    }
+
+    return true;
+  }
+
+  function userSetting() {
+    const userList = LADDER_ROWS[0];
+    let html = '';
+    let member;
+    let shuffleMembers = [];
+    let length;
+
+    if (window.ladderData) {
+      shuffleMembers = window.ladderData.goals;
+      length = window.ladderData.members.length - shuffleMembers.length;
+
+      if (length > 0) {
+        for (let i = 0; i < length; i += 1) {
+          shuffleMembers.push(DEFAULT_GOAL_VALUE);
+        }
+      }
+
+      shuffleMembers = shuffle(shuffleMembers);
+    }
+
+    for (let i = 0; i < userList.length; i += 1) {
+      const color = `#${(function lol(m, s, c) { return s[m.floor(m.random() * s.length)] + (c && lol(m, s, c - 1)); }(Math, '0123456789ABCDEF', 4))}`;
+      const x = userList[i].split('-')[0] * 1;
+      const left = x * HORIZONTAL_NODE_WIDTH - 30;
+
+      member = shuffleMembers[i] || '';
+
+      html += `<div class="user-wrap" style="left:${left}px">`
+        + `<input type="text" value="${member}" data-node="${userList[i]}">`
+        + `<button class="ladder-start" style="background-color:${color}" data-color="${color}" data-node="${userList[i]}"></button>`
+        + '</div>';
+    }
+    ladder.insertAdjacentHTML('beforeend', html);
+  }
+
+  function resultSetting() {
+    let html = '';
+    const resultList = LADDER_ROWS[DEFAULT_VERTICAL_NODES - 1];
+    let goals = [];
+
+    if (window.ladderData) {
+      goals = shuffle(window.ladderData.members);
+    }
+
+    for (let i = 0; i < resultList.length; i += 1) {
+      const x = resultList[i].split('-')[0] * 1;
+      const y = resultList[i].split('-')[1] * 1 + 1;
+      const node = `${x}-${y}`;
+      const left = x * HORIZONTAL_NODE_WIDTH - 30;
+      const goal = goals[i] || '';
+      html += `<div class="answer-wrap" style="left:${left}px">`;
+      html += `<div contenteditable=true data-node="${node}">${goal}</div>`;
+      html += `<p contenteditable=true id="${node}-user"></p>`;
+      html += '</div>';
+    }
+
+    ladder.insertAdjacentHTML('beforeend', html);
+  }
+
+  function drawNodeLine() {
+    const color = DEFAULT_LINE_COLOR;
+    const width = DEFAULT_LINE_WIDTH;
+
+    for (let y = 0; y < DEFAULT_VERTICAL_NODES; y += 1) {
+      for (let x = 0; x < horizontalNode; x += 1) {
+        const node = `${x}-${y}`;
+        const nodeInfo = GLOBAL_FOOT_PRINT[node];
+        if (nodeInfo.change && nodeInfo.draw) {
+          stokeLine(x, y, 'w', 'r', color, width);
+        }
+        stokeLine(x, y, 'h', 'd', color, width);
+      }
+    }
+  }
+
+  function setRandomNodeData() {
+    let x; let y; let loopNode; let
+      rand;
+
+    for (y = 0; y < DEFAULT_VERTICAL_NODES; y += 1) {
+      for (x = 0; x < horizontalNode; x += 1) {
+        loopNode = `${x}-${y}`;
+        rand = Math.floor(Math.random() * 2);
+
+        if (rand === 0) {
+          GLOBAL_FOOT_PRINT[loopNode] = { change: false, draw: false };
+        } else if (x === (horizontalNode - 1)) {
+          GLOBAL_FOOT_PRINT[loopNode] = { change: false, draw: false };
+        } else {
+          GLOBAL_FOOT_PRINT[loopNode] = { change: true, draw: true };
+          x += 1;
+          loopNode = `${x}-${y}`;
+          GLOBAL_FOOT_PRINT[loopNode] = { change: true, draw: false };
+        }
+      }
+    }
+  }
+
+  function canvasDraw(member) {
     horizontalNode = member;
 
-    setTimeout(function () {
-      document.getElementById('landing').remove();
-      $('body').removeClass("animation");
-      canvasDraw();
-    }, 310);
-  });
+    ladder.style.width = `${(horizontalNode - 1) * HORIZONTAL_NODE_WIDTH + 6}px`;
+    ladder.style.height = `${(DEFAULT_VERTICAL_NODES - 1) * VERTICAL_NODE_HEIGHT + 6}px`;
+    ladder.style.backgroundColor = '#fff';
 
-  function canvasDraw() {
-    ladder.style.width = ((horizontalNode - 1) * HORIZONTAL_NODE_WIDTH + 6) + "px";
-    ladder.style.height = ((verticalNode - 1) * 25 + 6) + "px";
-    ladder.style.backgroundColor = "#fff";
-
-    ladder_canvas.setAttribute("width", (horizontalNode - 1) * HORIZONTAL_NODE_WIDTH + 6);
-    ladder_canvas.setAttribute("height", (verticalNode - 1) * 25 + 6);
+    ladderCanvas.setAttribute('width', (horizontalNode - 1) * HORIZONTAL_NODE_WIDTH + 6);
+    ladderCanvas.setAttribute('height', (DEFAULT_VERTICAL_NODES - 1) * VERTICAL_NODE_HEIGHT + 6);
 
     setDefaultFootPrint();
     reSetCheckFootPrint();
@@ -81,330 +341,45 @@ document.addEventListener("DOMContentLoaded", function () {
     resultSetting();
   }
 
-  var userName = "";
-  $(document).on('click', 'button.ladder-start', function (e) {
+  document.addEventListener('click', (e) => {
+    let isDelegated = false;
+
+    for (let { target } = e; target && target !== this; target = target.parentNode) {
+      if (target.matches && target.matches('button.ladder-start')) {
+        isDelegated = true;
+        break;
+      }
+    }
+
+    if (!isDelegated) {
+      return false;
+    }
+
     if (working) {
       return false;
     }
-    $('.dim').remove();
+
+    const dimElement = document.querySelector('.dim');
+    if (dimElement) {
+      dimElement.remove();
+    }
+
     working = true;
     reSetCheckFootPrint();
-    var _this = $(e.target);
-    _this.attr('disabled', true).css({
-      'color': '#000',
-      'border': '1px solid #F2F2F2',
-      'opacity': '0.3'
-    })
-    var node = _this.attr('data-node');
-    var color = _this.attr('data-color');
+    const { target } = e;
+    target.setAttribute('disabled', true);
+    target.style.color = '#000';
+    target.style.border = '1px solid #F2F2F2';
+    target.style.opacity = '0.3';
 
-    // var bgm = $("#bgm-rally-x")[0];
-    // bgm.play();
+    const node = target.getAttribute('data-node');
+    const color = target.getAttribute('data-color');
 
     startLineDrawing(node, color);
-    userName = $('input[data-node="' + node + '"]').val();
+    userName = document.querySelector(`input[data-node="${node}"]`).value;
+
+    return true;
   });
 
-  function startLineDrawing(node, color) {
-    var downNode;
-    var x = node.split('-')[0] * 1;
-    var y = node.split('-')[1] * 1;
-    var nodeInfo = GLOBAL_FOOT_PRINT[node];
-
-    GLOBAL_CHECK_FOOT_PRINT[node] = true;
-
-    if (y == verticalNode) {
-      reSetCheckFootPrint();
-      var target = $('div[data-node="' + node + '"]');
-      target.css({
-        'border-color': color,
-        'border-width': '3px'
-      })
-      $('#' + node + "-user").text(userName);
-      working = false;
-      // var bgm = $("#bgm-rally-x")[0];
-      // bgm.pause();
-      // bgm.currentTime = 0;
-
-      // if (target.text() === DEFAULT_GOAL_VALUE) {
-      //   var bgmFailure = document.querySelectorAll("#bgm-failure")[0];
-      //   bgmFailure.play();
-      // } else {
-      //   var bgmSuccess = $("#bgm-success")[0];
-      //   bgmSuccess.play();
-      // }
-
-      return false;
-    }
-    if (nodeInfo.change) {
-      var leftNode = (x - 1) + "-" + y;
-      var rightNode = (x + 1) + "-" + y;
-      downNode = x + "-" + (y + 1);
-      var leftNodeInfo = GLOBAL_FOOT_PRINT[leftNode];
-      var rightNodeInfo = GLOBAL_FOOT_PRINT[rightNode];
-
-      if (GLOBAL_FOOT_PRINT.hasOwnProperty(leftNode) && GLOBAL_FOOT_PRINT.hasOwnProperty(rightNode)) {
-        if ((leftNodeInfo.change && leftNodeInfo.draw && !GLOBAL_CHECK_FOOT_PRINT[leftNode]) && rightNodeInfo.change && !GLOBAL_CHECK_FOOT_PRINT[rightNode]) {
-          //Left우선
-          console.log("중복일때  LEFT 우선");
-          stokeLine(x, y, 'w', 'l', color, FINDING_NODE_WIDTH);
-          setTimeout(function () {
-            return startLineDrawing(leftNode, color);
-          }, ANIMATION_TERM);
-        }
-        else if ((leftNodeInfo["change"] && !leftNodeInfo["draw"] && !GLOBAL_CHECK_FOOT_PRINT[leftNode]) && (rightNodeInfo["change"]) && !GLOBAL_CHECK_FOOT_PRINT[rightNode]) {
-          console.log('RIGHT 우선')
-          stokeLine(x, y, 'w', 'r', color, FINDING_NODE_WIDTH);
-          console.log("right")
-          setTimeout(function () {
-            return startLineDrawing(rightNode, color);
-          }, ANIMATION_TERM);
-        }
-        else if ((leftNodeInfo["change"] && leftNodeInfo["draw"] && !GLOBAL_CHECK_FOOT_PRINT[leftNode]) && !rightNodeInfo["change"]) {
-          //Left우선
-          console.log("LEFT 우선");
-          stokeLine(x, y, 'w', 'l', color, FINDING_NODE_WIDTH);
-          setTimeout(function () {
-            return startLineDrawing(leftNode, color);
-          }, ANIMATION_TERM);
-        }
-        else if (!leftNodeInfo["change"] && (rightNodeInfo["change"]) && !GLOBAL_CHECK_FOOT_PRINT[rightNode]) {
-          //Right우선
-          console.log("RIGHT 우선");
-          stokeLine(x, y, 'w', 'r', color, FINDING_NODE_WIDTH);
-          setTimeout(function () {
-            return startLineDrawing(rightNode, color);
-          }, ANIMATION_TERM);
-        }
-        else {
-          console.log('DOWN 우선')
-          stokeLine(x, y, 'h', 'd', color, FINDING_NODE_WIDTH);
-          setTimeout(function () {
-            return startLineDrawing(downNode, color);
-          }, ANIMATION_TERM);
-        }
-      } else {
-        console.log('else')
-        if (!GLOBAL_FOOT_PRINT.hasOwnProperty(leftNode) && GLOBAL_FOOT_PRINT.hasOwnProperty(rightNode)) {
-          /// 좌측라인
-          console.log('좌측라인')
-          if ((rightNodeInfo["change"] && !rightNodeInfo["draw"]) && !GLOBAL_CHECK_FOOT_PRINT[rightNode]) {
-            //Right우선
-            console.log("RIGHT 우선");
-            stokeLine(x, y, 'w', 'r', color, FINDING_NODE_WIDTH);
-            setTimeout(function () {
-              return startLineDrawing(rightNode, color);
-            }, ANIMATION_TERM);
-          } else {
-            console.log('DOWN')
-            stokeLine(x, y, 'h', 'd', color, FINDING_NODE_WIDTH);
-            setTimeout(function () {
-              return startLineDrawing(downNode, color);
-            }, ANIMATION_TERM);
-          }
-
-        } else if (GLOBAL_FOOT_PRINT.hasOwnProperty(leftNode) && !GLOBAL_FOOT_PRINT.hasOwnProperty(rightNode)) {
-          /// 우측라인
-          console.log('우측라인')
-          if ((leftNodeInfo["change"] && leftNodeInfo["draw"]) && !GLOBAL_CHECK_FOOT_PRINT[leftNode]) {
-            //Right우선
-            console.log("LEFT 우선");
-            stokeLine(x, y, 'w', 'l', color, FINDING_NODE_WIDTH);
-            setTimeout(function () {
-              return startLineDrawing(leftNode, color);
-            }, 100);
-          } else {
-            console.log('DOWN')
-            stokeLine(x, y, 'h', 'd', color, FINDING_NODE_WIDTH);
-            setTimeout(function () {
-              return startLineDrawing(downNode, color);
-            }, ANIMATION_TERM);
-          }
-        }
-      }
-    } else {
-      console.log("down")
-      downNode = x + "-" + (y + 1);
-      stokeLine(x, y, 'h', 'd', color, FINDING_NODE_WIDTH);
-      setTimeout(function () {
-        return startLineDrawing(downNode, color);
-      }, ANIMATION_TERM);
-    }
-  }
-
-  function userSetting() {
-    var userList = LADDER[0],
-      html = '',
-      member,
-      shuffleMembers = [];
-
-    if (window._ladderData) {
-      shuffleMembers = window._ladderData.goals;
-      length = window._ladderData.members.length - shuffleMembers.length;
-
-      if (length > 0) {
-        for (i = 0; i < length; i++) {
-          shuffleMembers.push(DEFAULT_GOAL_VALUE);
-        }
-      }
-
-      shuffleMembers = shuffle(shuffleMembers);
-    }
-
-
-    for (var i = 0; i < userList.length; i++) {
-      var color = '#' + (function lol(m, s, c) { return s[m.floor(m.random() * s.length)] + (c && lol(m, s, c - 1)); })(Math, '0123456789ABCDEF', 4);
-      var x = userList[i].split('-')[0] * 1;
-      //var y = userList[i].split('-')[1] * 1;
-      var left = x * HORIZONTAL_NODE_WIDTH - 30;
-
-      member = shuffleMembers[i] || '';
-
-      html += '<div class="user-wrap" style="left:' + left + 'px">' +
-        '<input type="text" value="' + member + '" data-node="' + userList[i] + '">' +
-        '<button class="ladder-start" style="background-color:' + color + '" data-color="' + color + '" data-node="' + userList[i] + '"></button>' +
-        '</div>';
-    }
-    $(ladder).append(html);
-  }
-
-  function resultSetting() {
-    var html = '', length, i,
-      resultList = LADDER[verticalNode - 1],
-      goals = [];
-
-    if (window._ladderData) {
-      goals = shuffle(window._ladderData.members);
-    }
-
-    for (var i = 0; i < resultList.length; i++) {
-      var x = resultList[i].split('-')[0] * 1;
-      var y = resultList[i].split('-')[1] * 1 + 1;
-      var node = x + "-" + y;
-      var left = x * HORIZONTAL_NODE_WIDTH - 30;
-      var goal = goals[i] || "";
-      html += '<div class="answer-wrap" style="left:' + left + 'px">';
-      html += '<div contenteditable=true data-node="' + node + '">' + goal + '</div>';
-      html += '<p contenteditable=true id="' + node + '-user"></p>';
-      html += '</div>';
-    }
-    $(ladder).append(html);
-  }
-
-  function drawNodeLine() {
-    var x, y, node, nodeInfo,
-      color = DEFAULT_LINE_COLOR,
-      width = DEFAULT_LINE_WIDTH;
-
-    for (var y = 0; y < verticalNode; y++) {
-      for (var x = 0; x < horizontalNode; x++) {
-        var node = x + '-' + y;
-        var nodeInfo = GLOBAL_FOOT_PRINT[node];
-        if (nodeInfo["change"] && nodeInfo["draw"]) {
-          stokeLine(x, y, 'w', 'r', color, width)
-        }
-        stokeLine(x, y, 'h', 'd', color, width);
-      }
-    }
-  }
-
-  function stokeLine(x, y, flag, dir, color, width) {
-    var moveToStart = 0, moveToEnd = 0, lineToStart = 0, lineToEnd = 0;
-    var eachWidth = HORIZONTAL_NODE_WIDTH;
-    var eachHeight = 25;
-
-    if (!_ctx) {
-      _ctx = ladder_canvas.getContext('2d');
-    }
-
-    if (flag == "w") {
-      //가로줄
-      if (dir == "r") {
-        _ctx.beginPath();
-        moveToStart = x * eachWidth;
-        moveToEnd = y * eachHeight;
-        lineToStart = (x + 1) * eachWidth;
-        lineToEnd = y * eachHeight;
-
-      } else {
-        // dir "l"
-        _ctx.beginPath();
-        moveToStart = x * eachWidth;
-        moveToEnd = y * eachHeight;
-        lineToStart = (x - 1) * eachWidth;
-        lineToEnd = y * eachHeight;
-      }
-    } else {
-      _ctx.beginPath();
-      moveToStart = x * eachWidth;
-      moveToEnd = y * eachHeight;
-      lineToStart = x * eachWidth;
-      lineToEnd = (y + 1) * eachHeight;
-    }
-
-    _ctx.moveTo(moveToStart + 3, moveToEnd + 2);
-    _ctx.lineTo(lineToStart + 3, lineToEnd + 2);
-    _ctx.strokeStyle = color;
-    _ctx.lineWidth = width;
-    _ctx.stroke();
-    _ctx.closePath();
-  }
-
-  function setRandomNodeData() {
-    for (var y = 0; y < verticalNode; y++) {
-      for (var x = 0; x < horizontalNode; x++) {
-        var loopNode = x + "-" + y;
-        var rand = Math.floor(Math.random() * 2);
-        if (rand == 0) {
-          GLOBAL_FOOT_PRINT[loopNode] = { "change": false, "draw": false };
-        } else {
-          if (x == (horizontalNode - 1)) {
-            GLOBAL_FOOT_PRINT[loopNode] = { "change": false, "draw": false };
-          } else {
-            GLOBAL_FOOT_PRINT[loopNode] = { "change": true, "draw": true };
-            x = x + 1;
-            loopNode = x + "-" + y;
-            GLOBAL_FOOT_PRINT[loopNode] = { "change": true, "draw": false };
-          }
-        }
-      }
-    }
-  }
-
-  function setDefaultFootPrint() {
-    var r, column;
-
-    for (r = 0; r < verticalNode; r++) {
-      for (column = 0; column < horizontalNode; column++) {
-        GLOBAL_FOOT_PRINT[column + "-" + r] = false;
-      }
-    }
-  }
-
-  function reSetCheckFootPrint() {
-    var r, column;
-
-    for (r = 0; r < verticalNode; r++) {
-      for (column = 0; column < horizontalNode; column++) {
-        GLOBAL_CHECK_FOOT_PRINT[column + "-" + r] = false;
-      }
-    }
-  }
-
-  function setDefaultRowLine() {
-    var x, y, rowArr, node;
-
-    for (y = 0; y < verticalNode; y++) {
-      rowArr = [];
-
-      for (x = 0; x < horizontalNode; x++) {
-        node = x + "-" + row;
-        rowArr.push(node);
-      }
-      LADDER[row] = rowArr;
-      row++;
-    }
-  }
-
-
-});
+  window.canvasDraw = canvasDraw;
+})();

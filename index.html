@@ -6,14 +6,13 @@
   <title>사다리 타기</title>
   <link rel="stylesheet" type="text/css" href="style.css">
   <link rel="stylesheet" type="text/css" href=" meterial.css">
-  <script src="./jquery-2.1.3.min.js"></script>
   <script src="./ie_polyfill.js"></script>
 </head>
 
 <body class="animation">
   <div class="landing" id="landing">
     <div class="start-form">
-      <h1>오픈소스SW그룹배<br>사다리 타기!</h1>
+      <h1>사다리 타기!</h1>
       <div class="landing-form">
         <div class="group">
           <div class="fill-area">
@@ -24,7 +23,6 @@
           </div>
           <div id="button" class="button raised cyan">
             <div class="center" fit>START</div>
-            <paper-ripple fit></paper-ripple>
           </div>
         </div>
       </div>
@@ -32,10 +30,45 @@
   </div>
   <div id="ladder" class="ladder">
     <div class="dim"></div>
-    <canvas class="ladder_canvas" id="ladder_canvas"></canvas>
+    <canvas class="ladder-canvas" id="ladder-canvas"></canvas>
   </div>
   <!-- <script src="./ladderData.js"></script> -->
   <script src="./ladder.js"></script>
+  <script>
+    document.body.onload = function() {
+      if (window.ladderData) {
+        document.getElementsByClassName('fill-area')[0].style.display = 'none';
+      }
+
+      document.getElementById('button').addEventListener('click', () => {
+        let member;
+
+        if (window.ladderData) {
+          member = window.ladderData.members.length;
+        } else {
+          member = document.querySelector('input[name=member]').value;
+
+          if (member < 2) {
+            alert('최소 2명 이상 선택하세요.');
+            return;
+          }
+
+          if (member > 25) {
+            alert('너무 많아요.. ㅠㅠ');
+            return;
+          }
+        }
+
+        document.getElementById('landing').style.opacity = '0';
+
+        setTimeout(() => {
+          document.getElementById('landing').remove();
+          document.body.classList.remove('animation');
+          canvasDraw(member);
+        }, 310);
+      });
+    };
+  </script>
 </body>
 
 </html>
