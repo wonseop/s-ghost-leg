@@ -1,3 +1,5 @@
+import EventEmitter from './event-emitter.js';
+
 (() => {
   const Console = window.console || {};
 
@@ -216,7 +218,6 @@
     } else {
       Console.log('down');
       downNode = `${x}-${y + 1}`;
-      downNode = `${x}-${y + 1}`;
       stokeLine(x, y, 'h', 'd', color, FINDING_ROOT_BORDER_WIDTH);
       setTimeout(() => startLineDrawing(downNode, color), ANIMATION_TERM);
     }
@@ -381,5 +382,18 @@
     return true;
   });
 
-  window.canvasDraw = canvasDraw;
+  class SGhostLeg extends EventEmitter {
+    constructor(member) {
+      super();
+
+      this.member = member;
+      Console.log('creation success!');
+    }
+
+    drawCanvas() {
+      canvasDraw(this.member);
+    }
+  }
+
+  window.SGhostLeg = SGhostLeg;
 })();
