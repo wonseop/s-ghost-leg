@@ -323,7 +323,7 @@ import EventEmitter from './event-emitter.js';
     }
   }
 
-  function canvasDraw(member) {
+  function drawCanvas(member) {
     horizontalNode = member;
 
     ladder.style.width = `${(horizontalNode - 1) * HORIZONTAL_NODE_WIDTH + 6}px`;
@@ -383,15 +383,12 @@ import EventEmitter from './event-emitter.js';
   });
 
   class SGhostLeg extends EventEmitter {
-    constructor(member) {
+    constructor(options) {
       super();
 
-      this.member = member;
+      this.member = options.member || 4;
+      drawCanvas(this.member);
       Console.log('creation success!');
-    }
-
-    drawCanvas() {
-      canvasDraw(this.member);
     }
   }
 

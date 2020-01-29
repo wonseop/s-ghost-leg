@@ -35,7 +35,7 @@
   <!-- <script src="./ladderData.js"></script> -->
   <script type="module" src="./ladder.js"></script>
   <script>
-    document.body.onload = function() {
+    document.body.onload = function () {
       if (window.ladderData) {
         document.getElementsByClassName('fill-area')[0].style.display = 'none';
       }
@@ -55,12 +55,13 @@
         }
 
         document.getElementById('landing').style.opacity = '0';
-        let sGhostLeg = new SGhostLeg(member);
-
+        new SGhostLeg({
+          member: member
+        });
         setTimeout(() => {
           document.getElementById('landing').remove();
           document.body.classList.remove('animation');
-          sGhostLeg.drawCanvas();
+
         }, 310);
       });
     };
