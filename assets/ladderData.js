@@ -1,5 +1,5 @@
 (function() {
-    var i, key, goals,
+    var key, goals,
         goods = {
             "대상": 2,
             "1등": 2,

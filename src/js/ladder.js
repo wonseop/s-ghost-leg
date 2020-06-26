@@ -13,10 +13,11 @@ import EventEmitter from './event-emitter.js';
   const DEFAULT_VERTICAL_NODES = 20;
   const DEFAULT_LINE_WIDTH = '2';
   const DEFAULT_LINE_COLOR = '#999';
-  const ANIMATION_TERM = 100;
+  const ANIMATION_TERM = 20;
 
-  const ladder = document.getElementById('ladder');
-  const ladderCanvas = document.getElementById('ladder-canvas');
+  let ladderElement;
+  let ladderCanvas;
+  let dimElement;
 
   let horizontalNode = 0;
   let row = 0;
@@ -135,7 +136,6 @@ import EventEmitter from './event-emitter.js';
       reSetCheckFootPrint();
 
       const target = document.querySelector(`div[data-node="${node}"]`);
-      target.style.borderColor = color;
       target.style.borderColor = color;
       target.style.borderWidth = `${FINDING_ROOT_BORDER_WIDTH}px`;
       document.getElementById(`${node}-user`).innerText = userName;
@@ -257,7 +257,7 @@ import EventEmitter from './event-emitter.js';
         + `<button class="ladder-start" style="background-color:${color}" data-color="${color}" data-node="${userList[i]}"></button>`
         + '</div>';
     }
-    ladder.insertAdjacentHTML('beforeend', html);
+    ladderElement.insertAdjacentHTML('beforeend', html);
   }
 
   function resultSetting() {
@@ -281,7 +281,7 @@ import EventEmitter from './event-emitter.js';
       html += '</div>';
     }
 
-    ladder.insertAdjacentHTML('beforeend', html);
+    ladderElement.insertAdjacentHTML('beforeend', html);
   }
 
   function drawNodeLine() {
@@ -301,8 +301,10 @@ import EventEmitter from './event-emitter.js';
   }
 
   function setRandomNodeData() {
-    let x; let y; let loopNode; let
-      rand;
+    let x;
+    let y;
+    let loopNode;
+    let rand;
 
     for (y = 0; y < DEFAULT_VERTICAL_NODES; y += 1) {
       for (x = 0; x < horizontalNode; x += 1) {
@@ -326,9 +328,9 @@ import EventEmitter from './event-emitter.js';
   function drawCanvas(member) {
     horizontalNode = member;
 
-    ladder.style.width = `${(horizontalNode - 1) * HORIZONTAL_NODE_WIDTH + 6}px`;
-    ladder.style.height = `${(DEFAULT_VERTICAL_NODES - 1) * VERTICAL_NODE_HEIGHT + 6}px`;
-    ladder.style.backgroundColor = '#fff';
+    ladderElement.style.width = `${(horizontalNode - 1) * HORIZONTAL_NODE_WIDTH + 6}px`;
+    ladderElement.style.height = `${(DEFAULT_VERTICAL_NODES - 1) * VERTICAL_NODE_HEIGHT + 6}px`;
+    ladderElement.style.backgroundColor = '#fff';
 
     ladderCanvas.setAttribute('width', (horizontalNode - 1) * HORIZONTAL_NODE_WIDTH + 6);
     ladderCanvas.setAttribute('height', (DEFAULT_VERTICAL_NODES - 1) * VERTICAL_NODE_HEIGHT + 6);
@@ -360,9 +362,9 @@ import EventEmitter from './event-emitter.js';
       return false;
     }
 
-    const dimElement = document.querySelector('.dim');
     if (dimElement) {
       dimElement.remove();
+      dimElement = null;
     }
 
     working = true;
@@ -383,8 +385,18 @@ import EventEmitter from './event-emitter.js';
   });
 
   class SGhostLeg extends EventEmitter {
-    constructor(options) {
+    constructor(target, options) {
       super();
+
+      ladderElement = target;
+
+      this.dimElement = dimElement = document.createElement('div');
+      this.dimElement.className = 'sgl-dim';
+      target.appendChild(this.dimElement);
+
+      this.ladderCanvas = ladderCanvas = document.createElement('canvas');
+      this.ladderCanvas.className = 'sgl-ladder-canvas';
+      target.appendChild(this.ladderCanvas);
 
       this.member = options.member || 4;
       drawCanvas(this.member);

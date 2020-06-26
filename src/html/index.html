@@ -4,9 +4,6 @@
 <head>
   <meta charset=utf-8>
   <title>사다리 타기</title>
-  <link rel="stylesheet" type="text/css" href="style.css">
-  <link rel="stylesheet" type="text/css" href=" meterial.css">
-  <script src="./ie_polyfill.js"></script>
 </head>
 
 <body class="animation">
@@ -28,12 +25,9 @@
       </div>
     </div>
   </div>
-  <div id="ladder" class="ladder">
-    <div class="dim"></div>
-    <canvas class="ladder-canvas" id="ladder-canvas"></canvas>
-  </div>
-  <!-- <script src="./ladderData.js"></script> -->
-  <script type="module" src="./ladder.js"></script>
+  <div id="ladder" class="ladder"></div>
+  <script src="./ladderData.js"></script>
+  <script src="bundle.js"></script>
   <script>
     document.body.onload = function () {
       if (window.ladderData) {
@@ -55,13 +49,12 @@
         }
 
         document.getElementById('landing').style.opacity = '0';
-        new SGhostLeg({
+        new SGhostLeg(document.getElementById('ladder'), {
           member: member
         });
         setTimeout(() => {
           document.getElementById('landing').remove();
           document.body.classList.remove('animation');
-
         }, 310);
       });
     };

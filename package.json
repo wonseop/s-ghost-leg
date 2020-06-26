@@ -2,9 +2,10 @@
   "name": "s-ghost-leg",
   "version": "1.0.0",
   "description": "",
-  "main": "index.html",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "webpack",
+    "clean": "rimraf dist"
   },
   "keywords": [
     "sadari",
@@ -15,8 +16,16 @@
   "author": "Wonseop Kim",
   "license": "MIT",
   "devDependencies": {
+    "clean-webpack-plugin": "^3.0.0",
+    "copy-webpack-plugin": "^6.0.2",
+    "css-loader": "^3.6.0",
     "eslint": "^6.8.0",
     "eslint-config-airbnb-base": "^14.0.0",
-    "eslint-plugin-import": "^2.19.1"
+    "eslint-plugin-import": "^2.19.1",
+    "html-webpack-plugin": "^4.3.0",
+    "rimraf": "^3.0.2",
+    "style-loader": "^1.2.1",
+    "webpack": "^4.43.0",
+    "webpack-cli": "^3.3.12"
   }
 }
